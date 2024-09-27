@@ -1,0 +1,440 @@
+<html lang="en"></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Caravan Routes</title>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .title {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-family: "Roboto", sans-serif;
+        font-weight: 900;
+        font-size: 2rem;
+        color: #4d4d4d;
+      }
+
+      .button {
+        position: absolute;
+        bottom: 30px;
+        left: 20px;
+        background-color: #4d4d4d; /* Green */
+        border: none;
+        color: rgb(255, 255, 255);
+        padding: 9px 12px 9px 12px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 300;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: 0.3s;
+        font-family: "Roboto", sans-serif;
+      }
+
+      button:hover {
+        opacity: 0.9;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      @media (max-width: 576px) {
+          .title {
+            font-size: 1rem;
+            top: 20px;
+            right: 20px;
+          }
+
+          .button {
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+          }
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <script src="https://js.arcgis.com/4.30/"></script>
+
+    <script>
+      require(["esri/Map", "esri/views/SceneView", "esri/layers/FeatureLayer"], (Map, SceneView, FeatureLayer) => {
+
+
+        const map = new Map({
+          basemap: "gray-vector",
+          ground: "world-elevation",
+        });
+
+        const view = new SceneView({
+          container: "viewDiv",
+          map: map,
+          camera: {
+            position: {
+              spatialReference: {
+                latestWkid: 3857,
+                wkid: 102100
+              },
+              x: -10821046.725,
+              y: 4357934.1037,
+              z: 7014898.51215
+            },
+           heading: 1.672,
+            tilt: 1.50108
+          },
+          ui: {
+              components: []
+          }
+        });
+
+        // Route Renderer Start
+
+        const colors = ["#616161", "#f70707", "#f789d8", "#545454", "#0300b5", "#00a120", "#36b8c4", "#ffde3e", "#fc9630"];
+
+        const commonProperties = {
+          type: "simple-line",
+          width: "2px",
+          style: "solid"
+        };
+
+        // Symbol for Caravan Route One
+        const oneSym = {
+          ...commonProperties,
+          color: colors[0]
+        };
+
+        // Symbol for Caravan Route Two
+        const twoSym = {
+          ...commonProperties,
+          color: colors[1]
+        };
+
+        // Symbol for Caravan Route Three
+        const threeSym = {
+          ...commonProperties,
+          color: colors[2]
+        };
+
+        // Symbol for Caravan Route Four
+        const fourSym = {
+          ...commonProperties,
+          color: colors[3]
+        };
+
+        // Symbol for Caravan Route Five
+        const fiveSym = {
+          ...commonProperties,
+          color: colors[4]
+        };
+
+        // Symbol for Caravan Route Six
+        const sixSym = {
+          ...commonProperties,
+          color: colors[5]
+        };
+
+        // Symbol for Caravan Route Seven
+        const sevenSym = {
+          ...commonProperties,
+          color: colors[6]
+        };
+
+        // Symbol for Caravan Route Eight
+        const eightSym = {
+          ...commonProperties,
+          color: colors[7]
+        };
+
+        // Symbol for Caravan Route Nine
+        const nineSym = {
+          ...commonProperties,
+          color: colors[8]
+        };
+
+        // Symbol for Other
+        const otherSym = {
+          ...commonProperties,
+          color: colors[9]
+        };
+
+        const routeRenderer = {
+          type: "unique-value",
+          legendOptions: {
+            title: "Route type"
+          },
+          defaultSymbol: otherSym,
+          //defaultLabel: "Other",
+          field: "CarNum",
+
+          uniqueValueInfos: [
+            {
+              value: 1,
+              symbol: oneSym,
+              //label: "Route One"
+            },
+            {
+              value: 2,
+              symbol: twoSym,
+            },
+            {
+              value: 3,
+              symbol: threeSym,
+            },
+            {
+              value: 4,
+              symbol: fourSym,
+            },
+            {
+              value: 5,
+              symbol: fiveSym,
+            },
+            {
+              value: 6,
+              symbol: sixSym,
+            },
+            {
+              value: 7,
+              symbol: sevenSym,
+            },
+            {
+              value: 8,
+              symbol: eightSym,
+            },
+            {
+              value: 9,
+              symbol: nineSym,
+            }
+          ]
+
+        };
+
+        // Route Renderer End
+
+        const caravanRoutes = new FeatureLayer({
+          url: "https://services2.arcgis.com/njxlOVQKvDzk10uN/arcgis/rest/services/Caravan_Routes/FeatureServer",
+          renderer: routeRenderer
+        });
+
+        map.add(caravanRoutes);
+
+        // Stop Renderer Start
+
+        const commonStopProperties = {
+          type: "simple-marker",
+          style: "circle",
+          size: "12px",
+          outline: {
+            color: [ 0, 0, 0 ],
+            width: 2
+          }
+        };
+
+        // Symbol for Caravan Stop One
+        const oneSymStop = {
+          ...commonStopProperties,
+          color: colors[0]
+        };
+
+        // Symbol for Caravan Stop Two
+        const twoSymStop = {
+          ...commonStopProperties,
+          color: colors[1]
+        };
+
+        // Symbol for Caravan Stop Three
+        const threeSymStop = {
+          ...commonStopProperties,
+          color: colors[2]
+        };
+
+        // Symbol for Caravan Stop Four
+        const fourSymStop = {
+          ...commonStopProperties,
+          color: colors[3]
+        };
+
+        // Symbol for Caravan Stop Five
+        const fiveSymStop = {
+          ...commonStopProperties,
+          color: colors[4]
+        };
+
+        // Symbol for Caravan Stop Six
+        const sixSymStop = {
+          ...commonStopProperties,
+          color: colors[5]
+        };
+
+        // Symbol for Caravan Stop Seven
+        const sevenSymStop = {
+          ...commonStopProperties,
+          color: colors[6]
+        };
+
+        // Symbol for Caravan Stop Eight
+        const eightSymStop = {
+          ...commonStopProperties,
+          color: colors[7]
+        };
+
+        // Symbol for Caravan Stop Nine
+        const nineSymStop = {
+          ...commonStopProperties,
+          color: colors[8]
+        };
+
+        // Symbol for Other
+        const otherSymStop = {
+          ...commonStopProperties,
+          color: colors[9]
+        };
+
+        const stopRenderer = {
+          type: "unique-value",
+          // legendOptions: {
+          //   title: "Stop type"
+          // },
+          defaultSymbol: otherSym,
+          //defaultLabel: "Other",
+          field: "CarNum",
+
+          uniqueValueInfos: [
+            {
+              value: 1,
+              symbol: oneSymStop,
+              //label: "Route One"
+            },
+            {
+              value: 2,
+              symbol: twoSymStop,
+            },
+            {
+              value: 3,
+              symbol: threeSymStop,
+            },
+            {
+              value: 4,
+              symbol: fourSymStop,
+            },
+            {
+              value: 5,
+              symbol: fiveSymStop,
+            },
+            {
+              value: 6,
+              symbol: sixSymStop,
+            },
+            {
+              value: 7,
+              symbol: sevenSymStop,
+            },
+            {
+              value: 8,
+              symbol: eightSymStop,
+            },
+            {
+              value: 9,
+              symbol: nineSymStop,
+            }
+          ]
+
+        };
+
+        // Stop Renderer End
+
+        const caravanStops = new FeatureLayer({
+          url: "https://services2.arcgis.com/njxlOVQKvDzk10uN/arcgis/rest/services/Caravan_Stops/FeatureServer",
+          definitionExpression: "CarName1 <> 'West Light Blue (Red)'",
+          renderer: stopRenderer,
+          labelingInfo: [{
+              labelExpressionInfo: {
+                value: "{City}, {State}"
+              },    
+              labelPlacement: "above-center",    
+              symbol: {
+                type: "label-3d",
+                symbolLayers: [{
+                  type: "text",
+                  horizontalAlignment: "right",    
+                  material: {
+                    color: [0, 0, 0]
+                  },
+                  halo: {
+                    color: [255, 255, 255, 0.8],
+                    size: 1
+                  },
+                  font: {
+                    weight: "bold",
+                    // family: "Roboto Mono"
+                  },
+                      
+                  size: 11,   
+                }],
+              },
+              maxScale: 0,
+              minScale: 7500000, 
+            }]
+        });
+
+        map.add(caravanStops);
+
+        const stateRenderer = {
+            type: "simple",
+            symbol: {
+              type: "simple-fill",
+              color: [255, 255, 255, 0],
+              outline: {
+                color: [0,0,0,0.15],
+                width: 0.75,
+                style: "solid"    
+              }
+            }
+         };
+
+        const usStates = new FeatureLayer({
+          url: "https://services2.arcgis.com/njxlOVQKvDzk10uN/arcgis/rest/services/US_States/FeatureServer",
+          elevationInfo: {
+            mode: "on-the-ground",
+          },
+          maxScale: 0,
+          renderer: stateRenderer,
+          popupEnabled: false
+        });
+
+        map.add(usStates);
+
+
+        // view.watch('camera.tilt', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+          
+        // view.watch('camera.position', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+          
+        // view.watch('camera.heading', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+        
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div class="title">Caravan Routes & Stops</div>
+    <a href="../index.html">
+      <button class="button">Return to Gallery</button>
+    </a>
+  </body>
+</html>

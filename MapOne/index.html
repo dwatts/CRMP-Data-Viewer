@@ -1,0 +1,190 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Textured Structures</title>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .title {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-family: "Roboto", sans-serif;
+        font-weight: 900;
+        font-size: 2rem;
+        color: #4d4d4d;
+      }
+
+      .button {
+        position: absolute;
+        bottom: 30px;
+        left: 20px;
+        background-color: #4d4d4d; /* Green */
+        border: none;
+        color: rgb(255, 255, 255);
+        padding: 9px 12px 9px 12px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 300;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: 0.3s;
+        font-family: "Roboto", sans-serif;
+      }
+
+      button:hover {
+        opacity: 0.9;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      @media (max-width: 576px) {
+          .title {
+            font-size: 1rem;
+            top: 20px;
+            right: 20px;
+          }
+
+          .button {
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+          }
+      }
+
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <script src="https://js.arcgis.com/4.30/"></script>
+
+    <script>
+      require(["esri/Map", "esri/views/SceneView", "esri/layers/SceneLayer", "esri/layers/FeatureLayer"], (Map, SceneView, SceneLayer, FeatureLayer) => {
+        
+
+        const rcStructures = new SceneLayer({                    
+            url:"https://tiles.arcgis.com/tiles/njxlOVQKvDzk10uN/arcgis/rest/services/RC_Structures_Texture/SceneServer",
+            popupEnabled: false
+        });
+
+        const rcTrees = new SceneLayer({                    
+            url:"https://tiles.arcgis.com/tiles/njxlOVQKvDzk10uN/arcgis/rest/services/RC_Trees/SceneServer",
+            opacity: 0.6,
+            popupEnabled: false
+        });
+
+        const mallRenderer = {
+              type: "simple",
+              symbol: {
+                type: "polygon-3d",
+                symbolLayers: [{
+                  type: "fill",
+                  material: {
+                    color: "#e6eae6"
+                  }
+                }]
+              }
+         };
+
+        const mallGroundCover = new FeatureLayer({
+          url: "https://services2.arcgis.com/njxlOVQKvDzk10uN/arcgis/rest/services/Mall_Cover/FeatureServer",
+          elevationInfo: {
+            mode: "on-the-ground",
+          },
+          maxScale: 0,
+          renderer: mallRenderer,
+          popupEnabled: false
+        });
+
+
+        const dcBuildingsRenderer = {
+          type: "simple",
+          symbol: {
+            type: "mesh-3d",
+            symbolLayers: [
+              {
+                type: "fill",
+                material: {
+                  color: [240, 240, 240, 0.7]
+                },
+                edges: {
+                  type: "sketch",
+                  color: [0, 0, 0, 0.6],
+                  size: 0.5
+                }
+              }
+            ]
+          }
+        }
+
+        const dcBuildings = new SceneLayer({                    
+            url:"https://services.arcgis.com/neT9SoYxizqTHZPH/arcgis/rest/services/DC_3D_Buildings/SceneServer",
+            definitionExpression: "EGID NOT IN ('DC00002813', 'DC00002812', 'DC00002810', 'DC00002811', 'DC00002814', 'DC00002809')",
+            renderer: dcBuildingsRenderer,
+            popupEnabled: false
+        });
+
+
+        const map = new Map({
+          basemap: "gray",
+          ground: "world-elevation",
+          layers: [mallGroundCover, rcStructures, dcBuildings, rcTrees]
+        });
+
+        const view = new SceneView({
+          container: "viewDiv",
+          map: map,
+          camera: {
+            position: {
+              spatialReference: {
+                latestWkid: 3857,
+                wkid: 102100
+              },
+              x: -8577159.0588,
+              y: 4705656.2382,
+              z: 70.667
+            },
+           heading: 77.63,
+            tilt: 77.52
+          },
+          ui: {
+              components: []
+          }
+        });
+
+
+        // view.watch('camera.tilt', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+          
+        // view.watch('camera.position', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+          
+        // view.watch('camera.heading', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+
+        
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div class="title">Resurrection City Structures (Texture)</div>
+    <a href="../index.html">
+      <button class="button">Return to Gallery</button>
+    </a>
+  </body>
+</html>

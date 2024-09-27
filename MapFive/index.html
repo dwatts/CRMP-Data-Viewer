@@ -1,0 +1,330 @@
+<html lang="en"></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Partner Organizations</title>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .title {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-family: "Roboto", sans-serif;
+        font-weight: 900;
+        font-size: 2rem;
+        color: #4d4d4d;
+      }
+
+      .button {
+        position: absolute;
+        bottom: 30px;
+        left: 20px;
+        background-color: #4d4d4d; /* Green */
+        border: none;
+        color: rgb(255, 255, 255);
+        padding: 9px 12px 9px 12px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 300;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: 0.3s;
+        font-family: "Roboto", sans-serif;
+      }
+
+      button:hover {
+        opacity: 0.9;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .popupTitle {
+        font-family: "Roboto", sans-serif;
+        font-weight: 900;
+        font-size: 16px;
+        color: #242424;
+        line-height: 20px;
+      }
+
+      .popupTable {
+        font-family: "Roboto", sans-serif;
+        font-weight: 100;
+        font-size: 12px;
+        color: #4d4d4d;
+        border: 1px #000;
+        width: 100%;
+      }
+
+      th, td {
+        border:  1px #000;
+        padding: 2px;
+      }
+
+      @media (max-width: 576px) {
+          .title {
+            font-size: 1rem;
+            top: 20px;
+            right: 20px;
+          }
+
+          .button {
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+          }
+      }
+
+
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <script src="https://js.arcgis.com/4.30/"></script>
+
+    <script>
+      require(["esri/Map", "esri/views/SceneView", "esri/layers/SceneLayer", "esri/layers/FeatureLayer"], (Map, SceneView, SceneLayer, FeatureLayer) => {
+
+
+        const map = new Map({
+          basemap: "gray-vector",
+          ground: "world-elevation",
+        });
+
+        const view = new SceneView({
+          container: "viewDiv",
+          map: map,
+          camera: {
+            position: {
+              spatialReference: {
+                latestWkid: 3857,
+                wkid: 102100
+              },
+              x: -8575818.1676,
+              y: 4703326.35376,
+              z: 44445.47402
+            },
+           heading: 2.8364,
+            tilt: 3.131
+          },
+          ui: {
+              components: []
+          },
+          popup: {
+              collapseEnabled: false,
+              //dockEnabled: true,
+              dockOptions: {
+                  buttonEnabled: false,
+                  breakpoint: false
+              }
+          }
+        });
+
+        
+
+        //Renderer Start
+
+        const colors = ["#ed5151", "#149ece", "#a7c636", "#9e559c", "#fc921f"];
+
+        const commonProperties = {
+          type: "simple-marker",
+          style: "circle",
+          size: "13px",
+          outline: {
+            color: [ 0, 0, 0 ],
+            width: 2
+          }
+        };
+
+        // Symbol for Organization
+        const orgOne = {
+          ...commonProperties,
+          color: colors[0]
+        };
+
+        // Symbol for Church
+        const orgTwo = {
+          ...commonProperties,
+          color: colors[1]
+        };
+
+        // Symbol for Other
+        const orgThree = {
+          ...commonProperties,
+          color: colors[2]
+        };
+
+        // Symbol for School
+        const orgFour = {
+          ...commonProperties,
+          color: colors[3]
+        };
+
+        // Symbol for Political Organization
+        const orgFive = {
+          ...commonProperties,
+          color: colors[4]
+        };
+
+        // Symbol for any other value
+        const otherOrg = {
+          ...commonProperties,
+          color: colors[4]
+        };
+
+        const orgRenderer = {
+          type: "unique-value",
+          // legendOptions: {
+          //   title: "Stop type"
+          // },
+          defaultSymbol: otherOrg,
+          //defaultLabel: "Other",
+          field: "Type",
+
+          uniqueValueInfos: [
+            {
+              value: "Organization",
+              symbol: orgOne,
+              //label: "Route One"
+            },
+            {
+              value: "Church",
+              symbol: orgTwo,
+            },
+            {
+              value: "Other",
+              symbol: orgThree,
+            },
+            {
+              value: "School",
+              symbol: orgFour,
+            },
+            {
+              value: "Political Organization",
+              symbol: orgFive,
+            }
+          ]
+
+        };
+
+        //Renderer End
+
+        var partnerOrgTemplate = {
+          outFields: ["*"],
+          content: function (feature) {
+            return setContentInfo(feature.graphic.attributes);
+          },    
+        };
+
+        function setContentInfo(results) {
+        
+        let popupElement = document.createElement("div");
+    
+        popupElement.innerHTML = "<p class='popupTitle'>" + results.Name + "</p><table class='popupTable'><tbody><tr><td><h4>Organization Type:</h4></td><td><h4>" + results.Type + "</h4></td></tr><tr><td><h4>Address:</h4></td><td><h4>" + results.Address + " " + results.City + ", " + results.State + "</h4></td></tr><tr><td><h4>Role:</h4></td><td><h4>" + results.Role + "</h4></td></tr><tr></tr></tbody></table>"
+        
+        return popupElement;
+    
+        };
+
+        const partnerOrgs = new FeatureLayer({
+          url: "https://services2.arcgis.com/njxlOVQKvDzk10uN/arcgis/rest/services/Partner_Organizations/FeatureServer",
+          maxScale: 0,
+          renderer: orgRenderer,
+          popupTemplate: partnerOrgTemplate,
+          elevationInfo: {
+            mode: "relative-to-scene",
+            offset: 10
+          },
+          screenSizePerspectiveEnabled: true,
+        });
+
+        map.add(partnerOrgs);
+
+        const stateRenderer = {
+            type: "simple",
+            symbol: {
+              type: "simple-fill",
+              color: [255, 255, 255, 0],
+              outline: {
+                color: [0,0,0,0.85],
+                width: 1,
+                style: "solid"    
+              }
+            }
+         };
+
+        const usStates = new FeatureLayer({
+          url: "https://services2.arcgis.com/njxlOVQKvDzk10uN/arcgis/rest/services/US_States/FeatureServer",
+          elevationInfo: {
+            mode: "on-the-ground",
+          },
+          maxScale: 0,
+          renderer: stateRenderer,
+          popupEnabled: false,
+          definitionExpression: "STATE_FIPS = '11'"
+        });
+
+        map.add(usStates);
+
+        const dcBuildingsRenderer = {
+          type: "simple",
+          symbol: {
+            type: "mesh-3d",
+            symbolLayers: [
+              {
+                type: "fill",
+                material: {
+                  color: [240, 240, 240, 0.7]
+                },
+                edges: {
+                  type: "sketch",
+                  color: [0, 0, 0, 0.6],
+                  size: 0.5
+                }
+              }
+            ]
+          }
+        }
+
+        const dcBuildings = new SceneLayer({                    
+            url:"https://services.arcgis.com/neT9SoYxizqTHZPH/arcgis/rest/services/DC_3D_Buildings/SceneServer",
+            definitionExpression: "EGID NOT IN ('DC00002813', 'DC00002812', 'DC00002810', 'DC00002811', 'DC00002814', 'DC00002809')",
+            renderer: dcBuildingsRenderer,
+            popupEnabled: false
+        });
+
+        map.add(dcBuildings);
+
+        // view.watch('camera.tilt', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+          
+        // view.watch('camera.position', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+          
+        // view.watch('camera.heading', function(newValue, oldValue, property, object) {
+        //   console.log(property , newValue);
+        // });
+
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div class="title">Partner Organizations</div>
+    <a href="../index.html">
+      <button class="button">Return to Gallery</button>
+    </a>
+  </body>
+</html>
